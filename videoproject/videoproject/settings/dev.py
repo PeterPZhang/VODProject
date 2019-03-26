@@ -14,13 +14,13 @@ import os
 import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 configPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "db.cfg")
 
 # sys.path 保存了python解释器的搜索包路径
 # print(sys.path)
 # 添加apps目录到搜包路径中
-sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+sys.path.insert(0, os.path.join(BASE_DIR, 'videoproject/apps'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -55,10 +56,22 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'videoproject.urls'
 
+AUTH_USER_MODEL = 'users.User'
+
+LOGIN_URL = '/users/login'
+
+LOGIN_REDIRECT_URL = '/video/index'
+
+THUMBNAIL_DEBUG = True
+
+# 文件上传路径
+MEDIA_ROOT = os.path.join(BASE_DIR, 'upload').replace('\\','/')
+MEDIA_URL = '/upload/'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,6 +83,7 @@ TEMPLATES = [
         },
     },
 ]
+print(TEMPLATES)
 
 WSGI_APPLICATION = 'videoproject.wsgi.application'
 
