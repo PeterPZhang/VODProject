@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users'
+    'sorl.thumbnail',
+    'users',
+    'video'
 ]
 
 MIDDLEWARE = [
@@ -65,7 +67,7 @@ LOGIN_REDIRECT_URL = '/video/index'
 THUMBNAIL_DEBUG = True
 
 # 文件上传路径
-MEDIA_ROOT = os.path.join(BASE_DIR, 'upload').replace('\\','/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'upload').replace('\\', '/')
 MEDIA_URL = '/upload/'
 
 TEMPLATES = [
@@ -83,7 +85,6 @@ TEMPLATES = [
         },
     },
 ]
-print(TEMPLATES)
 
 WSGI_APPLICATION = 'videoproject.wsgi.application'
 
