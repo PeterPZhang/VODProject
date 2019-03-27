@@ -17,8 +17,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from videoproject.apps.video import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
+    path('video/', include('video.urls')),
+    path('', views.IndexView.as_view(), name='home'),  # 默认首页
 ]
