@@ -59,3 +59,16 @@ class SearchListView(generic.ListView):
         context['page_list'] = page_list
         context['q'] = self.q
         return context
+
+
+class VideoDetailView(generic.DetailView):
+    """
+    视频详情页
+    """
+    model = Video
+    template_name = 'video/detail.html'
+
+    def get_object(self, queryset=None):
+        obj = super().get_object()
+        obj.increase_view_count()  # 调用自增函数
+        return obj
