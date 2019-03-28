@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import configparser
 import os
 import sys
-
+from .public import *
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 configPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "db.cfg")
@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sorl.thumbnail',
     'users',
-    'video'
+    'video',
+    'video.templatetags'
 ]
 
 MIDDLEWARE = [
@@ -58,7 +59,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'videoproject.urls'
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = AUTH_USER_MODEL
 
 LOGIN_URL = '/users/login'
 
