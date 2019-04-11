@@ -1,8 +1,11 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 from django.views import generic
 from video.models import Video, Classification
 from django.shortcuts import get_object_or_404
 from videoproject.utils import pagenation
+from videoproject.utils.common import ajax_required
+from django.views.decorators.http import require_http_methods
 # Create your views here.
 
 
@@ -72,3 +75,29 @@ class VideoDetailView(generic.DetailView):
         obj = super().get_object()
         obj.increase_view_count()  # 调用自增函数
         return obj
+
+
+@ajax_required
+# 验证request必须是post请求
+@require_http_methods(["POST"])
+def like(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"code": 1, "msg": "请先登录"})
+    video_id = request.POST['video_id']
+    video = Video.objects.get(pk=video_id)
+    user = request.user
+    video.switch_like(user)
+    return JsonResponse({"code": 0, "likes": video.count_likers(), "user_liked": video.user_liked(user)})
+
+
+@ajax_required
+@require_http_methods(["POST"])
+def collect(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"code": 1, "msg": "请先登录"})
+    video_id = request.POST['video_id']
+    video = Video.objects.get(pk=video_id)
+    user = request.user
+    video.switch_collect(user)
+    return JsonResponse({"code": 0, "collects": video.count_collecters(), "user_collected": video.user_collected(user)})
+
