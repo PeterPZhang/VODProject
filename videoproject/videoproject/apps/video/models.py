@@ -41,3 +41,9 @@ class Video(models.Model):
     def increase_view_count(self):
         self.view_count += 1
         self.save(update_fields=['view_count'])
+
+    def switch_like(self, user):
+        if user in self.liked.all():
+            self.liked.remove(user)
+        else:
+            self.liked.add(user)
