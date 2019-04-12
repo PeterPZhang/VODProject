@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
@@ -9,8 +7,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import *
 from django.views import generic
 
-
-from .forms import ProfileForm, SignUpForm, UserLoginForm, ChangePwdForm, SubscribeForm
+from videoproject.utils.public import AuthorRequiredMixin
+from .forms import ProfileForm, SignUpForm, UserLoginForm, ChangePwdForm
 
 User = get_user_model()
 
@@ -33,7 +31,7 @@ def login(request):
         next = request.GET.get('next', '/')
         form = UserLoginForm()
     print(next)
-    return render(request, 'registration/login.html', {'form': form, 'next':next})
+    return render(request, 'registration/login.html', {'form': form, 'next': next})
 
 
 def signup(request):
@@ -78,3 +76,13 @@ def change_password(request):
     return render(request, 'registration/change_password.html', {
         'form': form
     })
+
+
+class ProfileView(LoginRequiredMixin, AuthorRequiredMixin, generic.UpdateView):
+    model = User
+    form_class = ProfileForm
+    template_name = 'users/profile.html'
+
+    def get_success_url(self):
+        messages.success(self.request, "保存成功")
+        return reverse('users:profile', kwargs={'pk': self.request.user.pk})
