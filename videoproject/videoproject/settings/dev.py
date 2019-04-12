@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'users',
     'video',
-    'video.templatetags'
+    'video.templatetags',
+    'comment',
 ]
 
 MIDDLEWARE = [
