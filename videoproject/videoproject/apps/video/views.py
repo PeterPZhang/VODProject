@@ -4,8 +4,11 @@ from django.views import generic
 from video.models import Video, Classification
 from django.shortcuts import get_object_or_404
 from videoproject.utils import pagenation
-from videoproject.utils.common import ajax_required
+from videoproject.utils.public import ajax_required
+from .forms import CommentForm
 from django.views.decorators.http import require_http_methods
+
+
 # Create your views here.
 
 
@@ -76,6 +79,12 @@ class VideoDetailView(generic.DetailView):
         obj.increase_view_count()  # 调用自增函数
         return obj
 
+    def get_context_data(self, **kwargs):
+        context = super(VideoDetailView, self).get_context_data(**kwargs)
+        form = CommentForm()
+        context['form'] = form
+        return context
+
 
 @ajax_required
 # 验证request必须是post请求
@@ -100,4 +109,3 @@ def collect(request):
     user = request.user
     video.switch_collect(user)
     return JsonResponse({"code": 0, "collects": video.count_collecters(), "user_collected": video.user_collected(user)})
-
