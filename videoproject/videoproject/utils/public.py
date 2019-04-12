@@ -16,12 +16,15 @@ __mtime__ = '2019-04-11'
                ┃┫┫   ┃┫┫
                ┗┻┛   ┗┻┛
 """
-from django.http import HttpResponseBadRequest, HttpResponse
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseBadRequest
+from django.views.generic import View
 
 
 # @ajax_required验证request必须是ajax
 def ajax_required(f):
     """Not a mixin, but a nice decorator to validate than a request is AJAX"""
+
     def wrap(request, *args, **kwargs):
         if not request.is_ajax():
             return HttpResponseBadRequest()
@@ -31,3 +34,12 @@ def ajax_required(f):
     wrap.__doc__ = f.__doc__
     wrap.__name__ = f.__name__
     return wrap
+
+
+class AuthorRequiredMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if obj != self.request.user:
+            raise PermissionDenied
+
+        return super().dispatch(request, *args, **kwargs)
