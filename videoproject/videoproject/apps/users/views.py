@@ -79,6 +79,8 @@ def change_password(request):
 
 
 class ProfileView(LoginRequiredMixin, AuthorRequiredMixin, generic.UpdateView):
+    # LoginRequiredMixin的用途是：只允许登录的用户访问该视图类
+    # AuthorRequiredMixin的用途是：只允许用户自己查看自己的个人资料，别人是无法查看的
     model = User
     form_class = ProfileForm
     template_name = 'users/profile.html'

@@ -24,5 +24,6 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('signup/', views.signup, name='signup'),
     path('logout/', views.logout, name='logout'),
-    path('profile/<int:pk>/', views.ProfileView.as_view(), name='profile'),
+    path('profile/<int:pk>/', views.ProfileView.as_view(), name='profile'),  # 更新个人中心
+    path('change_password/', views.change_password, name='change_password'),  # 更改密码
 ]
