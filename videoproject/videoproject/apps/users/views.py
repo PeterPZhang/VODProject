@@ -8,7 +8,7 @@ from django.shortcuts import *
 from django.views import generic
 
 from videoproject.utils.public import AuthorRequiredMixin
-from .forms import ProfileForm, SignUpForm, UserLoginForm, ChangePwdForm
+from .forms import ProfileForm, SignUpForm, UserLoginForm, ChangePwdForm, SubscribeForm
 
 User = get_user_model()
 
@@ -88,3 +88,13 @@ class ProfileView(LoginRequiredMixin, AuthorRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         messages.success(self.request, "保存成功")
         return reverse('users:profile', kwargs={'pk': self.request.user.pk})
+
+
+class SubscribeView(LoginRequiredMixin, AuthorRequiredMixin, generic.UpdateView):
+    model = User
+    form_class = SubscribeForm
+    template_name = 'users/subscribe.html'
+
+    def get_success_url(self):
+        messages.success(self.request, "保存成功")
+        return reverse('users:subscribe', kwargs={'pk': self.request.user.pk})

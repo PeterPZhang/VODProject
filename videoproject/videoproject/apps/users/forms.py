@@ -122,8 +122,8 @@ class ChangePwdForm(PasswordChangeForm):
                                     )
 
 
+# 网站订阅
 class SubscribeForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['subscribe']
-
