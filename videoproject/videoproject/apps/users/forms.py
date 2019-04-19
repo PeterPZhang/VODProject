@@ -19,7 +19,8 @@ __mtime__ = '2019-03-26'
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.core.exceptions import ValidationError
-from .models import User
+
+from .models import User, Feedback
 
 
 def avatar_file_size(value):
@@ -127,3 +128,19 @@ class SubscribeForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['subscribe']
+
+
+class FeedbackForm(forms.ModelForm):
+    content = forms.CharField(min_length=4, max_length=200,
+                              error_messages={
+                                  'min_length': '至少4个字符',
+                                  'max_length': '不能多于200个字符',
+                                  'required': '内容不能为空'
+                              },
+                              widget=forms.Textarea(attrs={'placeholder': '请输入内容'}))
+    contact = forms.CharField(required=False,
+                              widget=forms.TextInput(attrs={'placeholder': '请输入联系方式'}))
+
+    class Meta:
+        model = Feedback
+        fields = ['content', 'contact']

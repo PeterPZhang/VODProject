@@ -8,7 +8,10 @@ from django.shortcuts import *
 from django.views import generic
 
 from videoproject.utils.public import AuthorRequiredMixin
-from .forms import ProfileForm, SignUpForm, UserLoginForm, ChangePwdForm, SubscribeForm
+from .forms import ProfileForm, SignUpForm, UserLoginForm, ChangePwdForm, SubscribeForm, FeedbackForm
+from .models import Feedback
+
+from ratelimit.decorators import ratelimit
 
 User = get_user_model()
 
@@ -98,3 +101,21 @@ class SubscribeView(LoginRequiredMixin, AuthorRequiredMixin, generic.UpdateView)
     def get_success_url(self):
         messages.success(self.request, "保存成功")
         return reverse('users:subscribe', kwargs={'pk': self.request.user.pk})
+
+
+class FeedbackView(LoginRequiredMixin, generic.CreateView):
+    model = Feedback
+    form_class = FeedbackForm
+    template_name = 'users/feedback.html'
+
+    @ratelimit(key='ip', rate='2/m')  # 限定流量
+    def post(self, request, *args, **kwargs):
+        was_limited = getattr(request, 'limited', False)
+        if was_limited:
+            messages.warning(self.request, "操作太频繁了，请1分钟后再试")
+            return render(request, 'users/feedback.html', {'form': FeedbackForm()})
+        return super().post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        messages.success(self.request, "提交成功")
+        return reverse('users:feedback')
