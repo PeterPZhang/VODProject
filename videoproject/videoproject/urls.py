@@ -20,8 +20,8 @@ from django.urls import include, path
 from videoproject.apps.video import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('users/', include('users.urls')),
-    path('video/', include('video.urls')),
-    path('', views.IndexView.as_view(), name='home'),  # 默认首页
-]
+                  path('admin/', admin.site.urls),
+                  path('users/', include('users.urls')),
+                  path('video/', include('video.urls')),
+                  path('', views.IndexView.as_view(), name='home'),  # 默认首页
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
