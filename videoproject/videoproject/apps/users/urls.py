@@ -28,4 +28,6 @@ urlpatterns = [
     path('change_password/', views.change_password, name='change_password'),  # 更改密码
     path('subscribe/<int:pk>/', views.SubscribeView.as_view(), name='subscribe'),  # 订阅设置功能
     path('feedback/', views.FeedbackView.as_view(), name='feedback'),  # 反馈建议
+    path('<int:pk>/collect_videos/', views.CollectListView.as_view(), name='collect_videos'),  # 我的收藏
+    path('<int:pk>/like_videos/', views.LikeListView.as_view(), name='like_videos'),  # 我的喜欢
 ]
