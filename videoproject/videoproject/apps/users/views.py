@@ -8,10 +8,11 @@ from django.shortcuts import *
 from django.views import generic
 
 from videoproject.utils.public import AuthorRequiredMixin
+from videoproject.utils.pagenation import get_page_list
 from .forms import ProfileForm, SignUpForm, UserLoginForm, ChangePwdForm, SubscribeForm, FeedbackForm
 from .models import Feedback
 
-from ratelimit.decorators import ratelimit
+# from ratelimit.decorators import ratelimit
 
 User = get_user_model()
 
@@ -108,7 +109,7 @@ class FeedbackView(LoginRequiredMixin, generic.CreateView):
     form_class = FeedbackForm
     template_name = 'users/feedback.html'
 
-    @ratelimit(key='ip', rate='2/m')  # 限定流量
+    # @ratelimit(key='ip', rate='2/m')  # 限定流量
     def post(self, request, *args, **kwargs):
         was_limited = getattr(request, 'limited', False)
         if was_limited:
@@ -119,3 +120,49 @@ class FeedbackView(LoginRequiredMixin, generic.CreateView):
     def get_success_url(self):
         messages.success(self.request, "提交成功")
         return reverse('users:feedback')
+
+
+class CollectListView(generic.ListView):
+    """
+    我的收藏列表
+    """
+    model = User
+    template_name = 'users/collect_videos.html'
+    context_object_name = 'video_list'
+    paginate_by = 10
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(CollectListView, self).get_context_data(**kwargs)
+        paginator = context.get('paginator')
+        page = context.get('page_obj')
+        page_list = get_page_list(paginator, page)
+        context['page_list'] = page_list
+        return context
+
+    def get_queryset(self):
+        user = get_object_or_404(User, pk=self.kwargs.get('pk'))
+        videos = user.collected_videos.all()
+        return videos
+
+
+class LikeListView(generic.ListView):
+    """
+    我的喜欢列表
+    """
+    model = User
+    template_name = 'users/like_videos.html'
+    context_object_name = 'video_list'
+    paginate_by = 10
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(LikeListView, self).get_context_data(**kwargs)
+        paginator = context.get('paginator')
+        page = context.get('page_obj')
+        page_list = get_page_list(paginator, page)
+        context['page_list'] = page_list
+        return context
+
+    def get_queryset(self):
+        user = get_object_or_404(User, pk=self.kwargs.get('pk'))
+        videos = user.liked_videos.all()
+        return videos
