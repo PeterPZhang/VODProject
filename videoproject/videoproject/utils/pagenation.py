@@ -19,7 +19,6 @@ __mtime__ = '2019-03-27'
 
 
 def get_page_list(paginator, page):
-
     """
     分页逻辑
     if 页数>=10:
