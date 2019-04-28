@@ -1,11 +1,12 @@
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import *
+from django.views import generic
 from django.views.generic import TemplateView  # 呈现给定模板，其中包含在URL中捕获的参数的上下文。
 
-from video.models import Video
+from video.models import Video, Classification
 from videoproject.utils.public import SuperUserRequiredMixin
-from .forms import UserLoginForm
+from .forms import UserLoginForm, VideoPublishForm
 from .models import MyChunkedUpload
 
 
@@ -66,3 +67,30 @@ class MyChunkedUploadCompleteView(ChunkedUploadCompleteView):
     def get_response_data(self, chunked_upload, request):
         video = Video.objects.create(file=chunked_upload.file)
         return {'code': 0, 'video_id': video.id, 'msg': 'success'}
+
+
+class VideoPublishView(SuperUserRequiredMixin, generic.UpdateView):
+    """
+    视频发布视图
+    """
+    model = Video
+    form_class = VideoPublishForm
+    template_name = 'myadmin/video_publish.html'
+
+    def get_context_data(self, **kwargs):
+        # 视频分类是通过get_context_data()带过来的
+        context = super(VideoPublishView, self).get_context_data(**kwargs)
+        clf_list = Classification.objects.all().values()
+        clf_data = {'clf_list': clf_list}
+        context.update(clf_data)
+        return context
+
+    def get_success_url(self):
+        return reverse('myadmin:video_publish_success')
+
+
+class VideoPublishSuccessView(generic.TemplateView):
+    """
+    视频发布成功回调页面
+    """
+    template_name = 'myadmin/video_publish_success.html'
