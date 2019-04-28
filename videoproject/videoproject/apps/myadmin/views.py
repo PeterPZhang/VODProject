@@ -5,7 +5,8 @@ from django.views import generic
 from django.views.generic import TemplateView  # 呈现给定模板，其中包含在URL中捕获的参数的上下文。
 
 from video.models import Video, Classification
-from videoproject.utils.public import SuperUserRequiredMixin
+from videoproject.utils.public import SuperUserRequiredMixin, AdminUserRequiredMixin
+from videoproject.utils.pagenation import get_page_list
 from .forms import UserLoginForm, VideoPublishForm
 from .models import MyChunkedUpload
 
@@ -94,3 +95,24 @@ class VideoPublishSuccessView(generic.TemplateView):
     视频发布成功回调页面
     """
     template_name = 'myadmin/video_publish_success.html'
+
+
+class VideoListView(AdminUserRequiredMixin, generic.ListView):
+    model = Video
+    template_name = 'myadmin/video_list.html'
+    context_object_name = 'video_list'
+    paginate_by = 10
+    q = ''
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(VideoListView, self).get_context_data(**kwargs)
+        paginator = context.get('paginator')
+        page = context.get('page_obj')
+        page_list = get_page_list(paginator, page)
+        context['page_list'] = page_list
+        context['q'] = self.q
+        return context
+
+    def get_queryset(self):
+        self.q = self.request.GET.get("q", "")
+        return Video.objects.get_search_list(self.q)

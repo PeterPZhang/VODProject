@@ -17,7 +17,8 @@ __mtime__ = '2019-04-11'
                ┗┻┛   ┗┻┛
 """
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseBadRequest, HttpResponse
+from django.http import HttpResponseBadRequest
+from django.shortcuts import *
 from django.views.generic import View
 
 
@@ -53,5 +54,17 @@ class SuperUserRequiredMixin(View):
     def dispatch(self, request, *args, **kwargs):
         if not self.request.user.is_superuser:
             return HttpResponse('无权限')
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AdminUserRequiredMixin(View):
+    """
+    管理员拦截器
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_staff:
+            return redirect('myadmin:login')
 
         return super().dispatch(request, *args, **kwargs)

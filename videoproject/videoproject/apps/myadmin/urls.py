@@ -31,5 +31,6 @@ urlpatterns = [
          name='api_chunked_upload_complete'),  # 上传完毕回调页面
     path('video_publish/<int:pk>/', views.VideoPublishView.as_view(), name='video_publish'),  # 发布视频
     path('video_publish_success/', views.VideoPublishSuccessView.as_view(), name='video_publish_success'),  # 视频发布成功
+    path('video_list/', views.VideoListView.as_view(), name='video_list'),  # 视频列表
 
 ]
