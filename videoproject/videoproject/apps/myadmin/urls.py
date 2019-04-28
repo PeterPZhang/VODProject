@@ -23,4 +23,5 @@ app_name = 'myadmin'
 urlpatterns = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
+    path('video_add/', views.AddVideoView.as_view(), name='video_add'),  # 展示上传视频页面
 ]

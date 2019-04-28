@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import *
+from django.views.generic import TemplateView  # 呈现给定模板，其中包含在URL中捕获的参数的上下文。
 
+from videoproject.utils.public import SuperUserRequiredMixin
 from .forms import UserLoginForm
 
 
@@ -37,3 +39,10 @@ def logout(request):
     """
     auth_logout(request)
     return redirect('myadmin:login')
+
+
+class AddVideoView(SuperUserRequiredMixin, TemplateView):
+    """
+    展示上传视频页面
+    """
+    template_name = 'myadmin/video_add.html'
