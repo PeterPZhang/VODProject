@@ -32,5 +32,6 @@ urlpatterns = [
     path('video_publish/<int:pk>/', views.VideoPublishView.as_view(), name='video_publish'),  # 发布视频
     path('video_publish_success/', views.VideoPublishSuccessView.as_view(), name='video_publish_success'),  # 视频发布成功
     path('video_list/', views.VideoListView.as_view(), name='video_list'),  # 视频列表
+    path('video_edit/<int:pk>/', views.VideoEditView.as_view(), name='video_edit'),  # 编辑视频
 
 ]

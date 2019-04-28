@@ -1,13 +1,14 @@
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
+from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import *
 from django.views import generic
 from django.views.generic import TemplateView  # 呈现给定模板，其中包含在URL中捕获的参数的上下文。
 
 from video.models import Video, Classification
-from videoproject.utils.public import SuperUserRequiredMixin, AdminUserRequiredMixin
 from videoproject.utils.pagenation import get_page_list
-from .forms import UserLoginForm, VideoPublishForm
+from videoproject.utils.public import SuperUserRequiredMixin, AdminUserRequiredMixin
+from .forms import UserLoginForm, VideoPublishForm, VideoEditForm
 from .models import MyChunkedUpload
 
 
@@ -116,3 +117,23 @@ class VideoListView(AdminUserRequiredMixin, generic.ListView):
     def get_queryset(self):
         self.q = self.request.GET.get("q", "")
         return Video.objects.get_search_list(self.q)
+
+
+class VideoEditView(SuperUserRequiredMixin, generic.UpdateView):
+    """
+    视频编辑
+    """
+    model = Video
+    form_class = VideoEditForm
+    template_name = 'myadmin/video_edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(VideoEditView, self).get_context_data(**kwargs)
+        clf_list = Classification.objects.all().values()
+        clf_data = {'clf_list': clf_list}
+        context.update(clf_data)
+        return context
+
+    def get_success_url(self):
+        messages.success(self.request, "保存成功")
+        return reverse('myadmin:video_edit', kwargs={'pk': self.kwargs['pk']})
