@@ -1,13 +1,15 @@
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.http import JsonResponse
 from django.shortcuts import *
 from django.views import generic
+from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView  # 呈现给定模板，其中包含在URL中捕获的参数的上下文。
 
 from video.models import Video, Classification
 from videoproject.utils.pagenation import get_page_list
-from videoproject.utils.public import SuperUserRequiredMixin, AdminUserRequiredMixin
+from videoproject.utils.public import SuperUserRequiredMixin, AdminUserRequiredMixin, ajax_required
 from .forms import UserLoginForm, VideoPublishForm, VideoEditForm
 from .models import MyChunkedUpload
 
@@ -137,3 +139,19 @@ class VideoEditView(SuperUserRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         messages.success(self.request, "保存成功")
         return reverse('myadmin:video_edit', kwargs={'pk': self.kwargs['pk']})
+
+
+@ajax_required
+@require_http_methods(["POST"])
+def video_delete(request):
+    """
+    后台删除视频
+    :param request:
+    :return:
+    """
+    if not request.user.is_superuser:
+        return JsonResponse({"code": 1, "msg": "无删除权限"})
+    video_id = request.POST['video_id']
+    instance = Video.objects.get(id=video_id)
+    instance.delete()
+    return JsonResponse({"code": 0, "msg": "success"})
