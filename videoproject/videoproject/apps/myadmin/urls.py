@@ -34,4 +34,10 @@ urlpatterns = [
     path('video_list/', views.VideoListView.as_view(), name='video_list'),  # 视频列表
     path('video_edit/<int:pk>/', views.VideoEditView.as_view(), name='video_edit'),  # 编辑视频
     path('video_delete/', views.video_delete, name='video_delete'),  # 删除视频
+
+    # ----------------------分类管理----------------------------
+    path('classification_add/', views.ClassificationAddView.as_view(), name='classification_add'),  # 增加视频分类
+    path('classification_list/', views.ClassificationListView.as_view(), name='classification_list'),  # 视频分类列表
+    path('classification_edit/<int:pk>/', views.ClassificationEditView.as_view(), name='classification_edit'),  # 编辑视频分类
+    path('classification_delete/', views.classification_delete, name='classification_delete'),  # 删除视频分类
 ]

@@ -20,7 +20,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
 from users.models import User
-from video.models import Video
+from video.models import Video, Classification
 
 
 class UserLoginForm(AuthenticationForm):
@@ -114,3 +114,37 @@ class VideoEditForm(forms.ModelForm):
     class Meta:
         model = Video
         fields = ['title', 'desc', 'status', 'cover', 'classification']
+
+
+class ClassificationAddForm(forms.ModelForm):
+    """
+    增加视频分类表单
+    """
+    title = forms.CharField(min_length=2, max_length=30, required=True,
+                            error_messages={
+                                'min_length': '至少2个字符',
+                                'max_length': '不能多于30个字符',
+                                'required': '不能为空'
+                            },
+                            widget=forms.TextInput(attrs={'placeholder': '请输入分类名称'}))
+
+    class Meta:
+        model = Classification
+        fields = ['title', 'status']
+
+
+class ClassificationEditForm(forms.ModelForm):
+    """
+    修改视频分类表单
+    """
+    title = forms.CharField(min_length=2, max_length=30, required=True,
+                            error_messages={
+                                'min_length': '至少2个字符',
+                                'max_length': '不能多于30个字符',
+                                'required': '不能为空'
+                            },
+                            widget=forms.TextInput(attrs={'placeholder': '请输入分类名称'}))
+
+    class Meta:
+        model = Classification
+        fields = ['title', 'status']

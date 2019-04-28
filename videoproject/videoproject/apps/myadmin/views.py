@@ -10,7 +10,7 @@ from django.views.generic import TemplateView  # 呈现给定模板，其中包�
 from video.models import Video, Classification
 from videoproject.utils.pagenation import get_page_list
 from videoproject.utils.public import SuperUserRequiredMixin, AdminUserRequiredMixin, ajax_required
-from .forms import UserLoginForm, VideoPublishForm, VideoEditForm
+from .forms import UserLoginForm, VideoPublishForm, VideoEditForm, ClassificationAddForm, ClassificationEditForm
 from .models import MyChunkedUpload
 
 
@@ -155,3 +155,73 @@ def video_delete(request):
     instance = Video.objects.get(id=video_id)
     instance.delete()
     return JsonResponse({"code": 0, "msg": "success"})
+
+
+class ClassificationListView(AdminUserRequiredMixin, generic.ListView):
+    """
+    分类列表
+    """
+    model = Classification
+    template_name = 'myadmin/classification_list.html'
+    context_object_name = 'classification_list'
+    paginate_by = 10
+    q = ''
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(ClassificationListView, self).get_context_data(**kwargs)
+        paginator = context.get('paginator')
+        page = context.get('page_obj')
+        page_list = get_page_list(paginator, page)
+        context['page_list'] = page_list
+        context['q'] = self.q
+        return context
+
+    def get_queryset(self):
+        self.q = self.request.GET.get("q", "")
+        return Classification.objects.filter(title__contains=self.q)
+
+
+class ClassificationAddView(SuperUserRequiredMixin, generic.View):
+    """
+    增加分类
+    """
+
+    def get(self, request):
+        form = ClassificationAddForm()
+        return render(self.request, 'myadmin/classification_add.html', {'form': form})
+
+    def post(self, request):
+        form = ClassificationAddForm(data=request.POST)
+        if form.is_valid():
+            form.save(commit=True)
+            return render(self.request, 'myadmin/classification_add_success.html')
+        return render(self.request, 'myadmin/classification_add.html', {'form': form})
+
+
+@ajax_required
+@require_http_methods(["POST"])
+def classification_delete(request):
+    """
+    删除分类
+    :param request:
+    :return:
+    """
+    if not request.user.is_superuser:
+        return JsonResponse({"code": 1, "msg": "无删除权限"})
+    classification_id = request.POST['classification_id']
+    instance = Classification.objects.get(id=classification_id)
+    instance.delete()
+    return JsonResponse({"code": 0, "msg": "success"})
+
+
+class ClassificationEditView(SuperUserRequiredMixin, generic.UpdateView):
+    """
+    编辑视频分类
+    """
+    model = Classification
+    form_class = ClassificationEditForm
+    template_name = 'myadmin/classification_edit.html'
+
+    def get_success_url(self):
+        messages.success(self.request, "保存成功")
+        return reverse('myadmin:classification_edit', kwargs={'pk': self.kwargs['pk']})
