@@ -17,7 +17,7 @@ __mtime__ = '2019-04-11'
                ┗┻┛   ┗┻┛
 """
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponse
 from django.views.generic import View
 
 
@@ -41,5 +41,17 @@ class AuthorRequiredMixin(View):
         obj = self.get_object()
         if obj != self.request.user:
             raise PermissionDenied
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class SuperUserRequiredMixin(View):
+    """
+    超级用户拦截器
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return HttpResponse('无权限')
 
         return super().dispatch(request, *args, **kwargs)
