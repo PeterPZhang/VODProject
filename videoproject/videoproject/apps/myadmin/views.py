@@ -8,10 +8,12 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView  # 呈现给定模板，其中包含在URL中捕获的参数的上下文。
 
 from comment.models import Comment
+from users.models import User
 from video.models import Video, Classification
 from videoproject.utils.pagenation import get_page_list
 from videoproject.utils.public import SuperUserRequiredMixin, AdminUserRequiredMixin, ajax_required
-from .forms import UserLoginForm, VideoPublishForm, VideoEditForm, ClassificationAddForm, ClassificationEditForm
+from .forms import UserLoginForm, VideoPublishForm, VideoEditForm, UserAddForm, UserEditForm, ClassificationAddForm, \
+    ClassificationEditForm
 from .models import MyChunkedUpload
 
 
@@ -264,5 +266,79 @@ def comment_delete(request):
         return JsonResponse({"code": 1, "msg": "无删除权限"})
     comment_id = request.POST['comment_id']
     instance = Comment.objects.get(id=comment_id)
+    instance.delete()
+    return JsonResponse({"code": 0, "msg": "success"})
+
+
+class UserListView(AdminUserRequiredMixin, generic.ListView):
+    """
+    用户列表
+    """
+    model = User
+    template_name = 'myadmin/user_list.html'
+    context_object_name = 'user_list'
+    paginate_by = 10
+    q = ''
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(UserListView, self).get_context_data(**kwargs)
+        paginator = context.get('paginator')
+        page = context.get('page_obj')
+        page_list = get_page_list(paginator, page)
+        context['page_list'] = page_list
+        context['q'] = self.q
+        return context
+
+    def get_queryset(self):
+        self.q = self.request.GET.get("q", "")
+        return User.objects.filter(username__contains=self.q).order_by('-date_joined')
+
+
+class UserAddView(SuperUserRequiredMixin, generic.View):
+    """
+    后台添加用户
+    """
+    def get(self, request):
+        form = UserAddForm()
+        return render(self.request, 'myadmin/user_add.html', {'form': form})
+
+    def post(self, request):
+        form = UserAddForm(data=request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            password = form.cleaned_data.get('password')
+            user.set_password(password)
+            user.save()
+            return render(self.request, 'myadmin/user_add_success.html')
+        return render(self.request, 'myadmin/user_add.html', {'form': form})
+
+
+class UserEditView(SuperUserRequiredMixin, generic.UpdateView):
+    """
+    编辑用户
+    """
+    model = User
+    form_class = UserEditForm
+    template_name = 'myadmin/user_edit.html'
+
+    def get_success_url(self):
+        messages.success(self.request, "保存成功")
+        return reverse('myadmin:user_edit', kwargs={'pk': self.kwargs['pk']})
+
+
+@ajax_required
+@require_http_methods(["POST"])
+def user_delete(request):
+    """
+    删除用户
+    :param request:
+    :return:
+    """
+    if not request.user.is_superuser:
+        return JsonResponse({"code": 1, "msg": "无删除权限"})
+    user_id = request.POST['user_id']
+    instance = User.objects.get(id=user_id)
+    if instance.is_superuser:
+        return JsonResponse({"code": 1, "msg": "不能删除管理员"})
     instance.delete()
     return JsonResponse({"code": 0, "msg": "success"})

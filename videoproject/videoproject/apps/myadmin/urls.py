@@ -44,4 +44,10 @@ urlpatterns = [
     # ----------------------评论管理----------------------------
     path('comment_list/', views.CommentListView.as_view(), name='comment_list'),  # 评论列表
     path('comment_delete/', views.comment_delete, name='comment_delete'),  # 删除评论
+
+    # ----------------------用户管理-------------------------
+    path('user_add/', views.UserAddView.as_view(), name='user_add'),  # 添加用户
+    path('user_list/', views.UserListView.as_view(), name='user_list'),  # 用户列表
+    path('user_edit/<int:pk>', views.UserEditView.as_view(), name='user_edit'),  # 用户编辑
+    path('user_delete/', views.user_delete, name='user_delete'),  # 删除用户
 ]
