@@ -7,6 +7,7 @@ from django.views import generic
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView  # 呈现给定模板，其中包含在URL中捕获的参数的上下文。
 
+from comment.models import Comment
 from video.models import Video, Classification
 from videoproject.utils.pagenation import get_page_list
 from videoproject.utils.public import SuperUserRequiredMixin, AdminUserRequiredMixin, ajax_required
@@ -225,3 +226,43 @@ class ClassificationEditView(SuperUserRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         messages.success(self.request, "保存成功")
         return reverse('myadmin:classification_edit', kwargs={'pk': self.kwargs['pk']})
+
+
+class CommentListView(AdminUserRequiredMixin, generic.ListView):
+    """
+    获取评论列表
+    """
+    model = Comment
+    template_name = 'myadmin/comment_list.html'
+    context_object_name = 'comment_list'
+    paginate_by = 10
+    q = ''
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(CommentListView, self).get_context_data(**kwargs)
+        paginator = context.get('paginator')
+        page = context.get('page_obj')
+        page_list = get_page_list(paginator, page)
+        context['page_list'] = page_list
+        context['q'] = self.q
+        return context
+
+    def get_queryset(self):
+        self.q = self.request.GET.get("q", "")
+        return Comment.objects.filter(content__contains=self.q).order_by('-timestamp')
+
+
+@ajax_required
+@require_http_methods(["POST"])
+def comment_delete(request):
+    """
+    删除评论
+    :param request:
+    :return:
+    """
+    if not request.user.is_superuser:
+        return JsonResponse({"code": 1, "msg": "无删除权限"})
+    comment_id = request.POST['comment_id']
+    instance = Comment.objects.get(id=comment_id)
+    instance.delete()
+    return JsonResponse({"code": 0, "msg": "success"})
