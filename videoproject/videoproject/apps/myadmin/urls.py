@@ -53,4 +53,8 @@ urlpatterns = [
 
     # -----------------------订阅通知---------------------------
     path('subscribe/', views.SubscribeView.as_view(), name='subscribe'),  # 视频订阅
+
+    # -----------------------用户反馈-------------------------
+    path('feedback_list/', views.FeedbackListView.as_view(), name='feedback_list'),  # 反馈列表
+    path('feedback_delete/', views.feedback_delete, name='feedback_delete'),  # 删除反馈信息
 ]
