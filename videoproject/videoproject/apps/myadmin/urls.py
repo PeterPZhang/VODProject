@@ -50,4 +50,7 @@ urlpatterns = [
     path('user_list/', views.UserListView.as_view(), name='user_list'),  # 用户列表
     path('user_edit/<int:pk>', views.UserEditView.as_view(), name='user_edit'),  # 用户编辑
     path('user_delete/', views.user_delete, name='user_delete'),  # 删除用户
+
+    # -----------------------订阅通知---------------------------
+    path('subscribe/', views.SubscribeView.as_view(), name='subscribe'),  # 视频订阅
 ]

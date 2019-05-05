@@ -17,9 +17,13 @@ __mtime__ = '2019-04-11'
                ┗┻┛   ┗┻┛
 """
 from django.core.exceptions import PermissionDenied
+from django.core.mail import send_mail
 from django.http import HttpResponseBadRequest
 from django.shortcuts import *
+from django.utils.html import strip_tags
 from django.views.generic import View
+
+from videoproject.settings.public import *
 
 
 # @ajax_required验证request必须是ajax
@@ -68,3 +72,16 @@ class AdminUserRequiredMixin(View):
             return redirect('myadmin:login')
 
         return super().dispatch(request, *args, **kwargs)
+
+
+def send_html_email(subject, html_message, to_list):
+    """
+    发送网页邮件
+    :param subject:
+    :param html_message:
+    :param to_list:
+    :return:
+    """
+    plain_message = strip_tags(html_message)
+    from_email = EMAIL_HOST_USER
+    send_mail(subject, plain_message, from_email, to_list, html_message=html_message)
